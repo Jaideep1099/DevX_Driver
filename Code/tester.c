@@ -7,12 +7,12 @@ int main()
 	char ch;
 	int fd;
 	fd = open("/dev/devX", O_RDWR);
-	
+	while(buffer[0]!='?'){
 		printf("type: ");
+		scanf("%c",buffer);
 		scanf("%c",&ch);
-		buffer[0] = ch;
 		write(fd,buffer,1,NULL);
-
+	}
 	close(fd);
 	return 0;
 }
