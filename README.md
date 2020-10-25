@@ -7,6 +7,7 @@ To see kernel outputs
 
 To compile driver module
 
+    $cd Code/driver_module
     $make
 
 Create device file
@@ -27,3 +28,7 @@ Compile tester & reader with gcc
 Remove driver module
 
     $sudo rmmod devX_driver
+
+To clear compiled object files
+
+    $make clean
