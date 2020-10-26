@@ -3,6 +3,7 @@
 #include <linux/fs.h>
 //#include <linux/kernel.h>
 
+#include <linux/interrupt.h>
 #include <linux/slab.h>
 
 MODULE_LICENSE("GPL");
@@ -25,6 +26,23 @@ struct file_operations devX_driver_fops = {
 	.release = devX_close
 };
 
+unsigned int i = 0;
+
+static DECLARE_WAIT_QUEUE_HEAD(key_waitq);
+
+static volatile int ev_press = 0;
+#define IRQ_NO 1
+
+static irqreturn_t irq_handler(int irq, void *dev_id) {
+	++i;
+	ev_press = 1;
+	wake_up_interruptible(&key_waitq);
+
+	printk(KERN_INFO "KEYBOARD_INTERRUPT OCCURED: %d\n",i);
+	return IRQ_RETVAL(IRQ_HANDLED);
+}
+
+
 int devX_open (struct inode *inode, struct file *filep) {
 	printk(KERN_INFO "DEVICE FILE OPENED\n");
 	return 0;
@@ -38,7 +56,10 @@ int devX_close (struct inode *inode, struct file *filep) {
 ssize_t devX_read (struct file *filep, char __user *buffer, size_t len, loff_t *offset) {
 	
 	printk(KERN_INFO "READING FROM DEVICE FILE\n");
+	wait_event_interruptible(key_waitq, ev_press);
+	ev_press = 0;
 	copy_to_user(buffer, memory_buffer, 1);
+	memset(memory_buffer,0,1);
 	printk(KERN_INFO "READING COMPLETE: %c|%c\n",*memory_buffer,*buffer);
 	return 0;
 }
@@ -68,6 +89,12 @@ static int __init devX_driver_init(void)
 	}
 	printk(KERN_INFO "ALLOCATED KERNEL MEMORY FOR BUFFER\n");
 	memset(memory_buffer, 0, 1);
+
+	if(request_irq(IRQ_NO, irq_handler, IRQF_SHARED, "devX", (void*)(irq_handler))) {
+		printk(KERN_INFO "CANNOT REGISTER IRQ\n");
+		free_irq(IRQ_NO,(void *)(irq_handler));
+	}
+
 	return 0;
 }
 
@@ -80,6 +107,7 @@ static void devX_driver_exit(void)
 		kfree(memory_buffer);
 		printk(KERN_INFO "DEALLOCATED KERNEL MEMORY FOR BUFFER\n");
 	}
+	free_irq(IRQ_NO,(void *)(irq_handler));
 	unregister_chrdev(240,"DevX Driver");
 	printk(KERN_INFO "REMOVED DEVX_DRIVER MODULE\n");
 }
