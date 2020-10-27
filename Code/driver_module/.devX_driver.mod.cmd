@@ -1,0 +1,1 @@
+cmd_/home/j/Desktop/Driver/DevX_Driver/Code/driver_module/devX_driver.mod := { echo  /home/j/Desktop/Driver/DevX_Driver/Code/driver_module/devX_driver.o; echo; } > /home/j/Desktop/Driver/DevX_Driver/Code/driver_module/devX_driver.mod

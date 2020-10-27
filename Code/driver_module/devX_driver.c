@@ -56,17 +56,131 @@ int devX_close (struct inode *inode, struct file *filep) {
 ssize_t devX_read (struct file *filep, char __user *buffer, size_t len, loff_t *offset) {
 	
 	printk(KERN_INFO "READING FROM DEVICE FILE\n");
-	wait_event_interruptible(key_waitq, ev_press);
+	wait_event_interruptible(key_waitq, ev_press);			//wait for interrupt
 	ev_press = 0;
 	copy_to_user(buffer, memory_buffer, 1);
-	memset(memory_buffer,0,1);
 	printk(KERN_INFO "READING COMPLETE: %c|%c\n",*memory_buffer,*buffer);
+	memset(memory_buffer,0,1);
+	return 0;
+}
+
+char ch[1];
+char map(char c){
+
+	switch(c){
+case 'Q': return 'A';
+break;
+case 'W': return 'B';
+break;
+case 'E': return 'C';
+break;
+case 'R': return 'D';
+break;
+case 'T': return 'E';
+break;
+case 'Y': return 'F';
+break;
+case 'U': return 'G';
+break;
+case 'I': return 'H';
+break;
+case 'O': return 'I';
+break;
+case 'P': return 'J';
+break;
+case 'A': return 'K';
+break;
+case 'S': return 'L';
+break;
+case 'D': return 'M';
+break;
+case 'F': return 'N';
+break;
+case 'G': return 'O';
+break;
+case 'H': return 'P';
+break;
+case 'J': return 'Q';
+break;
+case 'K': return 'R';
+break;
+case 'L': return 'S';
+break;
+case 'Z': return 'T';
+break;
+case 'X': return 'U';
+break;
+case 'C': return 'V';
+break;
+case 'V': return 'W';
+break;
+case 'B': return 'X';
+break;
+case 'N': return 'Y';
+break;
+case 'M': return 'Z';
+break;
+case 'q': return 'a';
+break;
+case 'w': return 'b';
+break;
+case 'e': return 'c';
+break;
+case 'r': return 'd';
+break;
+case 't': return 'e';
+break;
+case 'y': return 'f';
+break;
+case 'u': return 'g';
+break;
+case 'i': return 'h';
+break;
+case 'o': return 'i';
+break;
+case 'p': return 'j';
+break;
+case 'a': return 'k';
+break;
+case 's': return 'l';
+break;
+case 'd': return 'm';
+break;
+case 'f': return 'n';
+break;
+case 'g': return 'o';
+break;
+case 'h': return 'p';
+break;
+case 'j': return 'q';
+break;
+case 'k': return 'r';
+break;
+case 'l': return 's';
+break;
+case 'z': return 't';
+break;
+case 'x': return 'u';
+break;
+case 'c': return 'v';
+break;
+case 'v': return 'w';
+break;
+case 'b': return 'x';
+break;
+case 'n': return 'y';
+break;
+case 'm': return 'z';
+break;
+
+	}
 	return 0;
 }
 
 ssize_t devX_write (struct file *filep, const char __user *buffer, size_t len, loff_t *offset) {
 	printk(KERN_INFO "WRITING TO DEVICE FILE\n");
 	copy_from_user(memory_buffer, buffer, 1);
+	*memory_buffer = map(*memory_buffer);
 	printk(KERN_INFO "WRITTEN TO DEVICE FILE:%c|%c\n",*buffer,*memory_buffer);
         return len;
 }
