@@ -1,5 +1,5 @@
 # DevX_Driver
-Simple Linux Character Driver. Just writes and read from device file
+Simple Linux Character Driver - writes and read from device file
 
 To see kernel outputs
 
